@@ -1,0 +1,724 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vulnerabilityAssessments_Default_storageContainerPath": {
+            "type": "SecureString"
+        },
+        "servers_sql_server_marco28_name": {
+            "defaultValue": "sql-server-marco28",
+            "type": "String"
+        },
+        "vaults_kv_lab03_marco28_name": {
+            "defaultValue": "kv-lab03-marco28",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2024-12-01-preview",
+            "name": "[parameters('vaults_kv_lab03_marco28_name')]",
+            "location": "centralus",
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "Standard"
+                },
+                "tenantId": "7f9767f3-7274-4421-b083-0b194d4335ac",
+                "networkAcls": {
+                    "bypass": "None",
+                    "defaultAction": "Allow",
+                    "ipRules": [],
+                    "virtualNetworkRules": []
+                },
+                "accessPolicies": [
+                    {
+                        "tenantId": "7f9767f3-7274-4421-b083-0b194d4335ac",
+                        "objectId": "d0bc9091-7984-4712-b964-a9e1274809ef",
+                        "permissions": {
+                            "keys": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore",
+                                "GetRotationPolicy",
+                                "SetRotationPolicy",
+                                "Rotate"
+                            ],
+                            "secrets": [
+                                "Get",
+                                "List",
+                                "Set",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore"
+                            ],
+                            "certificates": [
+                                "Get",
+                                "List",
+                                "Update",
+                                "Create",
+                                "Import",
+                                "Delete",
+                                "Recover",
+                                "Backup",
+                                "Restore",
+                                "ManageContacts",
+                                "ManageIssuers",
+                                "GetIssuers",
+                                "ListIssuers",
+                                "SetIssuers",
+                                "DeleteIssuers"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "7f9767f3-7274-4421-b083-0b194d4335ac",
+                        "objectId": "c6f92494-7dd8-483e-8566-ff062a869b3d",
+                        "permissions": {
+                            "certificates": [],
+                            "keys": [],
+                            "secrets": [
+                                "get",
+                                "list"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enableRbacAuthorization": false,
+                "vaultUri": "[concat('https://', parameters('vaults_kv_lab03_marco28_name'), '.vault.azure.net/')]",
+                "provisioningState": "Succeeded",
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[parameters('servers_sql_server_marco28_name')]",
+            "location": "centralus",
+            "kind": "v12.0",
+            "properties": {
+                "administratorLogin": "sqladmin",
+                "version": "12.0",
+                "minimalTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled",
+                "restrictOutboundNetworkAccess": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2024-12-01-preview",
+            "name": "[concat(parameters('vaults_kv_lab03_marco28_name'), '/SqlAdminPassword')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', parameters('vaults_kv_lab03_marco28_name'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/connectionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/default')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "connectionType": "Default"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app')]",
+            "location": "centralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "sku": {
+                "name": "GP_Gen5",
+                "tier": "GeneralPurpose",
+                "family": "Gen5",
+                "capacity": 2
+            },
+            "kind": "v12.0,user,vcore",
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": 34359738368,
+                "catalogCollation": "SQL_Latin1_General_CP1_CI_AS",
+                "zoneRedundant": false,
+                "licenseType": "LicenseIncluded",
+                "readScale": "Disabled",
+                "requestedBackupStorageRedundancy": "Local",
+                "maintenanceConfigurationId": "/subscriptions/7efab594-4310-48df-8baa-549eba53c00d/providers/Microsoft.Maintenance/publicMaintenanceConfigurations/SQL_Default",
+                "isLedgerOn": false,
+                "availabilityZone": "NoPreference"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/master/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/devOpsAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/encryptionProtector",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyName": "ServiceManaged",
+                "serverKeyType": "ServiceManaged",
+                "autoRotationEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "auditActionsAndGroups": [],
+                "isStorageSecondaryKeyInUse": false,
+                "isAzureMonitorTargetEnabled": false,
+                "isManagedIdentityInUse": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/AllowAllWindowsAzureIps')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "0.0.0.0",
+                "endIpAddress": "0.0.0.0"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/firewallRules",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/ClientIp-2026-2-19_14-56-18')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "startIpAddress": "100.18.29.229",
+                "endIpAddress": "100.18.29.229"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/keys",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/ServiceManaged')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "kind": "servicemanaged",
+            "properties": {
+                "serverKeyType": "ServiceManaged"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/sqlVulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                },
+                "storageContainerPath": "[parameters('vulnerabilityAssessments_Default_storageContainerPath')]"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advancedThreatProtectionSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/CreateIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/DbParameterization')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/DefragmentIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/DropIndex')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/advisors",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/ForceLastGoodPlan')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "autoExecuteValue": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingPolicies",
+            "apiVersion": "2014-04-01",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "auditingState": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/auditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupLongTermRetentionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "weeklyRetention": "PT0S",
+                "monthlyRetention": "PT0S",
+                "yearlyRetention": "PT0S",
+                "weekOfYear": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 7,
+                "diffBackupIntervalInHours": 12
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "retentionDays": 0,
+                "isAzureMonitorTargetEnabled": false,
+                "state": "Disabled",
+                "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/ledgerDigestUploads",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Disabled",
+                "disabledAlerts": [
+                    ""
+                ],
+                "emailAddresses": [
+                    ""
+                ],
+                "emailAccountAdmins": false,
+                "retentionDays": 0
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Current')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[concat(parameters('servers_sql_server_marco28_name'), '/sqldb-app/Default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_sql_server_marco28_name'), 'sqldb-app')]",
+                "[resourceId('Microsoft.Sql/servers', parameters('servers_sql_server_marco28_name'))]"
+            ],
+            "properties": {
+                "recurringScans": {
+                    "isEnabled": false,
+                    "emailSubscriptionAdmins": true
+                }
+            }
+        }
+    ]
+}
